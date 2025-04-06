@@ -16,3 +16,8 @@ class Node:
     def __repr__(self):
         return f"🎵 {self.value.title} < - > 🎵{self.next.title}"
     
+class DoubleLinkedList:
+    def __init__(self, head: Node = None, tail: Node = None):
+        self.__head: Node = head
+        self.__tail: Node = tail
+        self.__size: int = 0
