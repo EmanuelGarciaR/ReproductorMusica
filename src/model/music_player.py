@@ -92,6 +92,23 @@ class Playlist:
 
         self.__head = self.__head.prev
         return print(f"Reproduciendo ahora: {self.__head.song}")
+
+    def del_song(self):
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
+
+        if self.__head == self.__tail:
+            self.__head = None
+            self.__tail = None
+        else:
+            self.__head = self.__head.next
+            self.__head.prev = None
+        self.__size-=1
+        print("❌ Canción eliminada ❌")
     
     def traverse(self):
         current_node = self.__head
@@ -106,7 +123,6 @@ if __name__ == "__main__":
     playlist.add_song("When i was your man", "Bruno Mars", 10)
     # playlist.traverse()
     # playlist.play_song()
-    playlist.next_song()
-    playlist.prev_song()
-    # playlist.prev_song()
-    # playlist.next_song()
+    # playlist.del_song()
+    # playlist.play_song()
+
