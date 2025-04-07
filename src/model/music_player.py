@@ -1,3 +1,7 @@
+import sys
+sys.path.append("src")
+from exceptions.exceptions import *
+
 class Song:
     def __init__(self, title: str, artist: str, duration: float):
         self.title: str = title
@@ -30,8 +34,18 @@ class Playlist:
             self.__head = new_node
             self.__tail = new_node
         else:
-            new_node.prev = self.__tail
+            current_song = self.__head
+            while current_song is not None:
+                try:
+                    if current_song.song.title == new_node.song.title:
+                        raise AlreadySong
+                except AlreadySong as e:
+                    print (f"{e}, {current_song.song.title}")
+                    return
+                current_song = current_song.next
+
             self.__tail.next = new_node
+            new_node.prev = self.__tail
             self.__tail = new_node
         self.__size += 1
     
@@ -41,7 +55,9 @@ class Playlist:
             print(current_node.song)
             current_node = current_node.next
 
-playlist = Playlist()
-playlist.add_song("Treat you better", "Shawn Mendes", 10)
-playlist.add_song("When i was your man", "Bruno Mars", 10)
-playlist.traverse()
+if __name__ == "__main__":
+    playlist = Playlist()
+    playlist.add_song("Treat you better", "Shawn Mendes", 10)
+    playlist.add_song("Treat you better", "Shawn Mendes", 10)
+    playlist.add_song("When i was your man", "Bruno Mars", 10)
+    playlist.traverse()
