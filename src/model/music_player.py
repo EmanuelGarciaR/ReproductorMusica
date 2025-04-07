@@ -9,7 +9,7 @@ class Song:
         self.duration: float = duration
 
     def __repr__(self):
-        return f"{self.title} - {self.artist} - ({self.duration})"
+        return f"{self.title}💿 - {self.artist} 🎤 - ({self.duration}seg)"
 
 class Node:
     def __init__(self, song: Song, next: Song = None, prev: Song = None):
@@ -49,6 +49,19 @@ class Playlist:
             self.__tail = new_node
         self.__size += 1
     
+    def play_song(self):
+        if self.__size == 0:
+            return "No hay canciones para reproducir"
+        return print(f"Reproduciendo ... \n{self.__head.song}")
+
+    def next_song(self):
+        if self.__size == 0:
+            return print("No hay canciones para reproducir")
+        if self.__head.next is None:
+            return print("No hay más canciones en la Playlist")
+        self.__head = self.__head.next
+        return print(f"Reproduciendo ahora: {self.__head.song}")
+    
     def traverse(self):
         current_node = self.__head
         while (current_node is not None):
@@ -58,6 +71,9 @@ class Playlist:
 if __name__ == "__main__":
     playlist = Playlist()
     playlist.add_song("Treat you better", "Shawn Mendes", 10)
-    playlist.add_song("Treat you better", "Shawn Mendes", 10)
+    # playlist.add_song("Treat you better", "Shawn Mendes", 10)
     playlist.add_song("When i was your man", "Bruno Mars", 10)
-    playlist.traverse()
+    # playlist.traverse()
+    # playlist.play_song()
+    playlist.next_song()
+    playlist.next_song()
