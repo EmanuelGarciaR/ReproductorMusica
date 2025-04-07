@@ -50,16 +50,47 @@ class Playlist:
         self.__size += 1
     
     def play_song(self):
-        if self.__size == 0:
-            return "No hay canciones para reproducir"
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
         return print(f"Reproduciendo ... \n{self.__head.song}")
 
     def next_song(self):
-        if self.__size == 0:
-            return print("No hay canciones para reproducir")
-        if self.__head.next is None:
-            return print("No hay más canciones en la Playlist")
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
+
+        try:
+            if self.__head.next is None:
+                raise NoMoreSongs
+        except NoMoreSongs as e:
+            print(e)
+            return
         self.__head = self.__head.next
+        return print(f"Reproduciendo ahora: {self.__head.song}")
+    
+    def prev_song(self):
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
+        
+        try:
+            if self.__head.prev == None:
+                raise NoPreviousSong
+        except NoPreviousSong as e:
+            print (e)
+            return
+
+        self.__head = self.__head.prev
         return print(f"Reproduciendo ahora: {self.__head.song}")
     
     def traverse(self):
@@ -70,10 +101,12 @@ class Playlist:
 
 if __name__ == "__main__":
     playlist = Playlist()
-    playlist.add_song("Treat you better", "Shawn Mendes", 10)
     # playlist.add_song("Treat you better", "Shawn Mendes", 10)
+    playlist.add_song("Treat you better", "Shawn Mendes", 10)
     playlist.add_song("When i was your man", "Bruno Mars", 10)
     # playlist.traverse()
     # playlist.play_song()
     playlist.next_song()
-    playlist.next_song()
+    playlist.prev_song()
+    # playlist.prev_song()
+    # playlist.next_song()
