@@ -1,4 +1,5 @@
 import sys
+import time
 sys.path.append("src")
 from exceptions.exceptions import *
 
@@ -56,7 +57,9 @@ class Playlist:
         except EmptyPlaylist as e:
             print(e)
             return
-        return print(f"Reproduciendo ... \n{self.__head.song}")
+        print(f"Reproduciendo ... \n{self.__head.song}")
+        time.sleep(self.__head.song.duration)
+
 
     def next_song(self):
         try:
@@ -110,19 +113,20 @@ class Playlist:
         self.__size-=1
         print("❌ Canción eliminada ❌")
     
-    def traverse(self):
+    def traverse_playlist(self):
         current_node = self.__head
         while (current_node is not None):
-            print(current_node.song)
+            self.play_song()
+            self.next_song()
             current_node = current_node.next
 
 if __name__ == "__main__":
     playlist = Playlist()
     # playlist.add_song("Treat you better", "Shawn Mendes", 10)
-    playlist.add_song("Treat you better", "Shawn Mendes", 10)
-    playlist.add_song("When i was your man", "Bruno Mars", 10)
+    playlist.add_song("Treat you better", "Shawn Mendes", 5)
+    playlist.add_song("When i was your man", "Bruno Mars", 2)
     # playlist.traverse()
-    # playlist.play_song()
+    playlist.traverse_playlist()
     # playlist.del_song()
     # playlist.play_song()
 
