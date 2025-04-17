@@ -19,7 +19,11 @@ class Node:
         self.prev: Song = prev
     
     def __repr__(self):
-        return f"🎵 {self.song.title} < - > 🎵{self.next.title}"
+        if self.next is None:
+            next_title = "None"
+        else:
+            next_title = self.next.song.title
+        return f"🎵 {self.song.title} < - > 🎵{next_title}"
     
 class Playlist:
     #Double linked list
@@ -76,7 +80,7 @@ class Playlist:
             print(e)
             return
         self.__head = self.__head.next
-        return print(f"Reproduciendo ahora: {self.__head.song}")
+        # return print(f"Reproduciendo ahora: {self.__head.song}")
     
     def prev_song(self):
         try:
@@ -94,7 +98,7 @@ class Playlist:
             return
 
         self.__head = self.__head.prev
-        return print(f"Reproduciendo ahora: {self.__head.song}")
+        # return print(f"Reproduciendo ahora: {self.__head.song}")
 
     def del_song(self):
         try:
@@ -113,20 +117,16 @@ class Playlist:
         self.__size-=1
         print("❌ Canción eliminada ❌")
     
-    def traverse_playlist(self):
+    def play_playlist_continous(self):
         current_node = self.__head
         while (current_node is not None):
             self.play_song()
             self.next_song()
             current_node = current_node.next
-
-if __name__ == "__main__":
-    playlist = Playlist()
-    # playlist.add_song("Treat you better", "Shawn Mendes", 10)
-    playlist.add_song("Treat you better", "Shawn Mendes", 5)
-    playlist.add_song("When i was your man", "Bruno Mars", 2)
-    # playlist.traverse()
-    playlist.traverse_playlist()
-    # playlist.del_song()
-    # playlist.play_song()
+    
+    def show_playlist(self):
+        current_node = self.__head
+        while(current_node is not None):
+            print(current_node.song)
+            current_node = current_node.next
 
