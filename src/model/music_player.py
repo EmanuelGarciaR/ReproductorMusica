@@ -1,5 +1,8 @@
 import sys
 import time
+import threading
+import keyboard
+
 sys.path.append("src")
 from exceptions.exceptions import *
 
@@ -31,7 +34,10 @@ class Playlist:
         self.__head: Node = head
         self.__tail: Node = tail
         self.__size: int = 0
-    
+        self.__current_time: float = 0.0
+        self.is_playing: bool = False
+        self.lock = threading.Lock()
+
     def add_song(self, title: str, artist: str, duration: float):
         new_song = Song(title, artist, duration)
         new_node = Node(new_song)
@@ -61,8 +67,31 @@ class Playlist:
         except EmptyPlaylist as e:
             print(e)
             return
-        print(f"Reproduciendo ... \n{self.__head.song}")
-        time.sleep(self.__head.song.duration)
+        
+        if self.__head is None:
+            print("No hay más canciopnes en la playlist")
+            return
+
+        song = self.__head.song
+        remaining_time = song.duration - self.__current_time
+
+        if remaining_time <= 0:
+            print("La canción ya ha terminado")
+            self.next_song()
+            return
+
+        print(f"🎶 Reproduciendo {song.title} - {song.artist} --- ({song.duration})")
+        for second in range(int(self.__current_time), int(song.duration)):
+            if self.__current_time >= song.duration:
+                break
+            progress = int((self.__current_time + 1) / song.duration * 30)  # Escala la barra a 30 caracteres
+            bar = f"[{'=' * progress}{' ' * (30 - progress)}] {int(self.__current_time)}/{int(song.duration)} seg"
+            print(f"\r{bar}", end="")
+            time.sleep(1)  # Espera 1 segundo por cada iteración
+            self.__current_time +=1
+
+        print("\nLa canción ha terminado.")
+        self.__current_time = 0.0
 
 
     def next_song(self):
@@ -74,12 +103,17 @@ class Playlist:
             return
 
         try:
-            if self.__head.next is None:
+            if self.__head.next is None or self.__head.next is None:
+                self.__head = None
+                # self.__tail = self.__head
+                self.__current_time = 0
+                self.is_playing = False
                 raise NoMoreSongs
         except NoMoreSongs as e:
             print(e)
             return
         self.__head = self.__head.next
+        self.__current_time = 0
         # return print(f"Reproduciendo ahora: {self.__head.song}")
     
     def prev_song(self):
@@ -117,12 +151,56 @@ class Playlist:
         self.__size-=1
         print("❌ Canción eliminada ❌")
     
+    # def play_playlist_continous(self):
+    #     current_node = self.__head
+    #     while (current_node is not None):
+    #         self.play_song()
+    #         self.next_song()
+    #         current_node = current_node.next
+    #     hilo = threading.Thread(target=self.forward_time)
+    #     hilo.start()
+
+    def forward_time(self, seconds: float):
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
+
+        song = self.__head.song
+        remaining_time = song.duration - self.__current_time
+        if seconds >= remaining_time:
+            print(f"⏩ La canción ha terminado.")
+            self.next_song()  # Avanza a la siguiente canción si se supera el tiempo restante
+        else:
+            self.__current_time += seconds
+            print(f"⏩+{seconds}")
+
+
     def play_playlist_continous(self):
-        current_node = self.__head
-        while (current_node is not None):
+        self.is_playing = True
+        
+        thread1 = threading.Thread(target=self.play_thread)
+        thread2 = threading.Thread(target=self.interaction_thread)
+        thread1.start()
+        thread2.start()
+        
+        thread1.join()
+        thread2.join()
+    def play_thread(self):
+        while self.__head is not None:
             self.play_song()
             self.next_song()
-            current_node = current_node.next
+        self.is_playing = False
+    
+    def interaction_thread(self):
+        while self.is_playing:
+            if keyboard.is_pressed('right'):
+                with self.lock:
+                    self.forward_time(3)
+                time.sleep(0.5)
+
     
     def show_playlist(self):
         current_node = self.__head

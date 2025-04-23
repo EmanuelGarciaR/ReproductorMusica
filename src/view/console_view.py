@@ -1,6 +1,7 @@
 import sys
 sys.path.append("src")
 from model.music_player import *
+import threading
 
 def data_song():
     song = input("Ingresa el nombre de la canción: ")
@@ -14,9 +15,9 @@ def console_menu():
     print("Opciones - Oprime el número correspondiente:\n1. Añadir canción.\n2. Reproducir Canción.\n3. Siguiente canción. \n4. Canción previa. \n5. Eliminar canción actual. \n6. Eliminar canción por nombre. \n7. Mostrar Playlist. \n8. Modo Aleatorio. \n9. Adelantar canción. \n10. Crear subplaylist. \n11. Reproducir playlist")
 
 playlist = Playlist()
-playlist.add_song(title="Treat You Better", artist="Shawn Mendes", duration=3.50)
-playlist.add_song(title="Locked Out of Heaven", artist="Bruno Mars", duration=3.92)
-playlist.add_song(title="Wonder", artist="Shawn Mendes", duration=2.52)
+playlist.add_song(title="Treat You Better", artist="Shawn Mendes", duration=10)
+playlist.add_song(title="Locked Out of Heaven", artist="Bruno Mars", duration=15)
+playlist.add_song(title="Wonder", artist="Shawn Mendes", duration=10)
 
 while True:
     console_menu()
@@ -48,11 +49,12 @@ while True:
         #Hacer metodo modo aleatorio
         ...
     elif option == 9:
-        #Hacer metodo para adelantar canción
-        ...
+        sec = float(input("Ingresa la cantidad de segundos que deseas adelantar: "))
+        playlist.forward_time(sec)
     elif option == 10:
         #Hacer metodo para crear subplaylist
         ...
 
     elif option == 11:
         playlist.play_playlist_continous()
+        
