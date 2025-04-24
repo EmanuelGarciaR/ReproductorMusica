@@ -2,6 +2,7 @@ import sys
 import time
 import threading
 import keyboard
+import random
 
 sys.path.append("src")
 from exceptions.exceptions import *
@@ -60,6 +61,22 @@ class Playlist:
             self.__tail = new_node
         self.__size += 1
     
+    def simulate_playback(self, song: Song, start_time: float = 0.0):
+        remaining_time = song.duration - start_time
+        if remaining_time <= 0:
+            print("La canción ya ha terminado.")
+            return
+
+        print(f"🎶 Reproduciendo {song.title} - {song.artist} --- ({song.duration} seg)")
+        for second in range(int(start_time), int(song.duration)):
+            if second >= song.duration:
+                break
+            progress = int((second + 1) / song.duration * 30)  # Escala la barra a 30 caracteres
+            bar = f"[{'=' * progress}{' ' * (30 - progress)}] {second + 1}/{int(song.duration)} seg"
+            print(f"\r{bar}", end="")
+            time.sleep(1)  # Espera 1 segundo por cada iteración
+        print("\nLa canción ha terminado.")
+    
     def play_song(self):
         try:
             if self.__size == 0:
@@ -67,31 +84,45 @@ class Playlist:
         except EmptyPlaylist as e:
             print(e)
             return
-        
+
         if self.__head is None:
-            print("No hay más canciopnes en la playlist")
+            print("No hay más canciones en la Playlist")
             return
+        self.simulate_playback(self.__head.song, self.__current_time)
+        self.__current_time = 0
+    
+    # def play_song(self):
+    #     try:
+    #         if self.__size == 0:
+    #             raise EmptyPlaylist
+    #     except EmptyPlaylist as e:
+    #         print(e)
+    #         return
+        
+    #     if self.__head is None:
+    #         print("No hay más canciopnes en la playlist")
+    #         return
 
-        song = self.__head.song
-        remaining_time = song.duration - self.__current_time
+    #     song = self.__head.song
+    #     remaining_time = song.duration - self.__current_time
 
-        if remaining_time <= 0:
-            print("La canción ya ha terminado")
-            self.next_song()
-            return
+    #     if remaining_time <= 0:
+    #         print("La canción ya ha terminado")
+    #         self.next_song()
+    #         return
 
-        print(f"🎶 Reproduciendo {song.title} - {song.artist} --- ({song.duration})")
-        for second in range(int(self.__current_time), int(song.duration)):
-            if self.__current_time >= song.duration:
-                break
-            progress = int((self.__current_time + 1) / song.duration * 30)  # Escala la barra a 30 caracteres
-            bar = f"[{'=' * progress}{' ' * (30 - progress)}] {int(self.__current_time)}/{int(song.duration)} seg"
-            print(f"\r{bar}", end="")
-            time.sleep(1)  # Espera 1 segundo por cada iteración
-            self.__current_time +=1
+    #     print(f"🎶 Reproduciendo {song.title} - {song.artist} --- ({song.duration})")
+    #     for second in range(int(self.__current_time), int(song.duration)):
+    #         if self.__current_time >= song.duration:
+    #             break
+    #         progress = int((self.__current_time + 1) / song.duration * 30)  # Escala la barra a 30 caracteres
+    #         bar = f"[{'=' * progress}{' ' * (30 - progress)}] {int(self.__current_time)}/{int(song.duration)} seg"
+    #         print(f"\r{bar}", end="")
+    #         time.sleep(1)  # Espera 1 segundo por cada iteración
+    #         self.__current_time +=1
 
-        print("\nLa canción ha terminado.")
-        self.__current_time = 0.0
+    #     print("\nLa canción ha terminado.")
+    #     self.__current_time = 0.0
 
 
     def next_song(self):
@@ -207,4 +238,38 @@ class Playlist:
         while(current_node is not None):
             print(current_node.song)
             current_node = current_node.next
+
+    def shuffle(self):
+        try:
+            if self.__size == 0:
+                raise EmptyPlaylist
+        except EmptyPlaylist as e:
+            print(e)
+            return
+
+        nodes = [] 
+        current = self.__head
+        while current is not None:
+            nodes.append(current)
+            current = current.next
+        random.shuffle(nodes)
+        
+        print("🔀 Modo aleatorio activado:")
+        self.is_playing = True
+        thread3 = threading.Thread(target=self.shuffle_thread, args=(nodes,))
+        thread4 = threading.Thread(target=self.interaction_thread)
+        thread3.start()
+        thread4.start()
+    
+        thread3.join()
+        thread4.join()
+
+    def shuffle_thread(self, nodes):
+        for node in nodes:
+            if not self.is_playing:
+                break
+            self.simulate_playback(node.song, self.__current_time)
+            self.__current_time = 0
+        self.is_playing = False
+
 
